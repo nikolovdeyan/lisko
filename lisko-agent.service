@@ -1,0 +1,17 @@
+[Unit]
+Description=Lisko Local Agent Service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+# Set up environment variables containing authentication tokens for Prefect Cloud.
+Environment="PREFECT__USER__AUTH_TOKEN="
+Environment="PREFECT__CLOUD__AGENT__AUTH_TOKEN="
+# ExecStartPre=/bin/sleep 5
+ExecStartPre=/usr/local/lib/lisko/.venv/bin/python -m prefect backend cloud
+ExecStartPre=/usr/local/lib/lisko/.venv/bin/python -m prefect auth login -t $PREFECT__USER__AUTH_TOKEN
+ExecStart=/usr/local/lib/lisko/.venv/bin/python -m prefect agent local start -t $PREFECT__CLOUD__AGENT__AUTH_TOKEN -n agent-lisko
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
